@@ -46,7 +46,7 @@ def check_and_download_model(model_name: str) -> None:
         print("Model Cached - Using Cached Version...")
 
 
-def zero_shot_model(model_name: str, message: str) -> str:
+def zero_shot(model_name: str, message: str) -> str:
     """
     Chat with the llm without any prior training (i.e. zero-shot)
 
@@ -63,9 +63,9 @@ def zero_shot_model(model_name: str, message: str) -> str:
     return response["message"]["content"]
 
 
-def few_shot_model(model_name: str, training_data: array, message: str) -> str:
+def few_shot(model_name: str, training_data: array, message: str) -> str:
     """
-    Chat with the llm without any prior training (i.e. zero-shot)
+    Chat with the llm and provide some training samples for few-shot learning.
 
     Args:
         model_name (str): Tag of the LLM.
@@ -81,4 +81,75 @@ def few_shot_model(model_name: str, training_data: array, message: str) -> str:
     few_shot_message = few_shot_message + "\n\n" + message
 
     response = ollama.chat(model=model_name, messages=[{"role": "user", "content": few_shot_message}], stream=False)
+    return response["message"]["content"]
+
+
+def chain_of_reasoning_zero_shot(model_name: str, message: str) -> str:
+    """
+    Chat with the llm without any prior training (i.e. zero-shot), but with chain of thought reasoning.
+
+    Args:
+        model_name (str): Tag of the LLM.
+        message (str): The prompt to provide to the LLM.
+    Returns:
+        response (str): The response from the assistant.
+    """
+    check_and_download_model(model_name)
+
+    print("Chain of Reasoning - Zero Shot (" + model_name + "):")
+
+    initial_messages = [
+        {"role": "user", "content": message},
+        {"role": "assistant", "content": "Let's think step by step."}
+    ]
+    complex_response = ollama.chat(model=model_name,
+                                   messages=initial_messages,
+                                   stream=False)
+    response = ollama.chat(model=model_name,
+                           messages=[
+                               initial_messages,
+                               complex_response["message"],
+                               {"role": "assistant", "content": "Therefore, the final answer is "}
+                           ],
+                           stream=False)
+
+    return response["message"]["content"]
+
+
+def chain_of_reasoning_few_shot(model_name: str, training_data: array, message: str) -> str:
+    """
+    Chat with the llm and provide some training samples for few-shot learning, but also with chain of thought reasoning.
+
+    Args:
+        model_name (str): Tag of the LLM.
+        training_data (array): The training data as an array in the form: (input, output), where output contains an
+                               explanation of how to get to the answer including the final answer.
+        message (str): The prompt to provide to the LLM.
+    Returns:
+        response (str): The response from the assistant.
+    """
+    check_and_download_model(model_name)
+
+    print("Few Shot - Chain of Reasoning (" + model_name + "): " + str(len(training_data)) + " Samples")
+
+    few_shot_message: str = "\n\n".join(
+        training_data.map(lambda pair: "Input: " + pair[0] + "\nOutput: Let's think step by step. \n" + pair[1])
+    )
+    few_shot_message = few_shot_message + "\n\n" + message
+
+    initial_messages = [
+        {"role": "user", "content": few_shot_message},
+        {"role": "assistant", "content": "Let's think step by step."}
+    ]
+    complex_response = ollama.chat(model=model_name,
+                                   messages=initial_messages,
+                                   stream=False)
+    response = ollama.chat(model=model_name,
+                           messages=[
+                               initial_messages,
+                               complex_response["message"],
+                               {"role": "assistant", "content": "Therefore, the final answer is "}
+                           ],
+                           stream=False)
+
     return response["message"]["content"]
