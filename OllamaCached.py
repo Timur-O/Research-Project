@@ -128,7 +128,7 @@ def chain_of_reasoning_zero_shot(model_name: str, sys_message: str, message: str
                                    messages=initial_messages,
                                    stream=False)
 
-    initial_messages.append({"role": "assistant", "content": complex_response})
+    initial_messages.append({"role": "assistant", "content": complex_response["message"]["content"]})
     initial_messages.append({"role": "assistant", "content": "Therefore, the final answer is "})
 
     response = ollama.chat(model=model_name,
@@ -169,7 +169,7 @@ def chain_of_reasoning_few_shot(model_name: str, sys_message: str, training_mess
                                    messages=initial_messages,
                                    stream=False)
 
-    initial_messages.append({"role": "assistant", "content": complex_response})
+    initial_messages.append({"role": "assistant", "content": complex_response["message"]["content"]})
     initial_messages.append({"role": "assistant", "content": "Therefore, the final answer is "})
 
     response = ollama.chat(model=model_name,
