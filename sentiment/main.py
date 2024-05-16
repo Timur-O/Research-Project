@@ -65,7 +65,7 @@ def chain_of_thought_zero(model_name, input_row):
                    "represents the probability of the corresponding sentiment category. The sum of all probabilities "
                    "must equal 1.0.")
     prompt = "Textual Input: " + input_row
-    return OllamaCached.zero_shot(model_name, system_text, prompt)
+    return OllamaCached.chain_of_reasoning_zero_shot(model_name, system_text, prompt)
 
 
 def chain_of_thought_few(model_name, training_data, input_row):

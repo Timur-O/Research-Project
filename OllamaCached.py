@@ -86,6 +86,7 @@ def few_shot(model_name: str, sys_message: str, training_messages: array, messag
     check_and_download_model(model_name)
 
     print("Few Shot (" + model_name + "): " + str(len(training_messages)) + " Samples")
+
     initial_messages = [
         {"role": "system", "content": sys_message}
     ]
@@ -116,7 +117,7 @@ def chain_of_reasoning_zero_shot(model_name: str, sys_message: str, message: str
     """
     check_and_download_model(model_name)
 
-    print("Chain of Reasoning - Zero Shot (" + model_name + "):")
+    print("Chain-of-Thought - Zero-Shot (" + model_name + "):")
 
     initial_messages = [
         {"role": "system", "content": sys_message},
@@ -127,7 +128,7 @@ def chain_of_reasoning_zero_shot(model_name: str, sys_message: str, message: str
                                    messages=initial_messages,
                                    stream=False)
 
-    initial_messages.append(complex_response)
+    initial_messages.append({"role": "assistant", "content": complex_response})
     initial_messages.append({"role": "assistant", "content": "Therefore, the final answer is "})
 
     response = ollama.chat(model=model_name,
@@ -151,7 +152,7 @@ def chain_of_reasoning_few_shot(model_name: str, sys_message: str, training_mess
     """
     check_and_download_model(model_name)
 
-    print("Few Shot (" + model_name + "): " + str(len(training_messages)) + " Samples")
+    print("Chain-Of-Thought Few-Shot (" + model_name + "): " + str(len(training_messages)) + " Samples")
     initial_messages = [
         {"role": "system", "content": sys_message}
     ]
@@ -168,7 +169,7 @@ def chain_of_reasoning_few_shot(model_name: str, sys_message: str, training_mess
                                    messages=initial_messages,
                                    stream=False)
 
-    initial_messages.append(complex_response)
+    initial_messages.append({"role": "assistant", "content": complex_response})
     initial_messages.append({"role": "assistant", "content": "Therefore, the final answer is "})
 
     response = ollama.chat(model=model_name,
