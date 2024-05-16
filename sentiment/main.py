@@ -78,8 +78,9 @@ def chain_of_thought_few(model_name, training_data, input_row):
 
     formatted_training = []
     for training_piece in training_data:
-        # TODO - Add Reasoning
-        formatted_training.append([training_piece[0], str(training_piece[1:6])])
+        explanation = OllamaCached.generate_explanation(model_name, training_piece)
+        explained_result = explanation + " Thus the final answer is: " + str(training_piece[1:6])
+        formatted_training.append([training_piece[0], explained_result])
 
     return OllamaCached.chain_of_reasoning_few_shot(model_name, system_text, formatted_training, prompt)
 

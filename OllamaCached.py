@@ -92,10 +92,10 @@ def few_shot(model_name: str, sys_message: str, training_messages: array, messag
     for training_message in training_messages:
         user_temp = {"role": "user", "content": training_message[0]}
         assistant_temp = {"role": "assistant", "content": training_message[1]}
-        initial_messages = initial_messages.append(user_temp)
-        initial_messages = initial_messages.append(assistant_temp)
+        initial_messages.append(user_temp)
+        initial_messages.append(assistant_temp)
 
-    initial_messages = initial_messages.append({"role": "user", "content": message})
+    initial_messages.append({"role": "user", "content": message})
 
     response = ollama.chat(model=model_name,
                            messages=initial_messages,
@@ -126,12 +126,12 @@ def chain_of_reasoning_zero_shot(model_name: str, sys_message: str, message: str
     complex_response = ollama.chat(model=model_name,
                                    messages=initial_messages,
                                    stream=False)
+
+    initial_messages.append(complex_response)
+    initial_messages.append({"role": "assistant", "content": "Therefore, the final answer is "})
+
     response = ollama.chat(model=model_name,
-                           messages=[
-                               initial_messages,
-                               complex_response["message"],
-                               {"role": "assistant", "content": "Therefore, the final answer is "}
-                           ],
+                           messages=initial_messages,
                            stream=False)
 
     return response["message"]["content"]
@@ -158,21 +158,51 @@ def chain_of_reasoning_few_shot(model_name: str, sys_message: str, training_mess
     for training_message in training_messages:
         user_temp = {"role": "user", "content": training_message[0]}
         assistant_temp = {"role": "assistant", "content": training_message[1]}
-        initial_messages = initial_messages.append(user_temp)
-        initial_messages = initial_messages.append(assistant_temp)
+        initial_messages.append(user_temp)
+        initial_messages.append(assistant_temp)
 
-    initial_messages = initial_messages.append({"role": "user", "content": message})
-    initial_messages = initial_messages.append({"role": "assistant", "content": "Let's think step by step."})
+    initial_messages.append({"role": "user", "content": message})
+    initial_messages.append({"role": "assistant", "content": "Let's think step by step."})
 
     complex_response = ollama.chat(model=model_name,
                                    messages=initial_messages,
                                    stream=False)
+
+    initial_messages.append(complex_response)
+    initial_messages.append({"role": "assistant", "content": "Therefore, the final answer is "})
+
     response = ollama.chat(model=model_name,
-                           messages=[
-                               initial_messages,
-                               complex_response["message"],
-                               {"role": "assistant", "content": "Therefore, the final answer is "}
-                           ],
+                           messages=initial_messages,
+                           stream=False)
+
+    return response["message"]["content"]
+
+
+def generate_explanation(model_name, to_explain):
+    """
+    Generate an explanation given a sentiment and a result.
+
+    Args:
+        model_name: The name of the LLM model
+        to_explain: The input to explain [0] and the correct labels [1-5]
+    Returns:
+        The explanation of how this result is achieved.
+    """
+    system_prompt = ("You are an explanation generation model. Given an input text and its corresponding sentiment "
+                     "probability distribution, your task is to craft a concise, three-sentence explanation that "
+                     "clarifies why the input text aligns with the predicted sentiment. The probability distribution "
+                     "follows this structure: Value 1: Strongly Negative, Value 2: Slightly Negative, Value 3: Neutral,"
+                     "Value 4: Slightly Positive, Value 5: Strongly Positive. Your explanation should be informative, "
+                     "focusing on the key words or phrases in the input text that most strongly contribute to the "
+                     "predicted sentiment.")
+
+    initial_messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": "Input: " + to_explain[0] + " / Result to Explain: " + str(to_explain[1:5])}
+    ]
+
+    response = ollama.chat(model=model_name,
+                           messages=initial_messages,
                            stream=False)
 
     return response["message"]["content"]
