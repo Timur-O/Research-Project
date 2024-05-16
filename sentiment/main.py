@@ -1,7 +1,7 @@
+import os
 import pandas as pd
 import csv
 from sklearn.model_selection import train_test_split
-
 import OllamaCached
 
 
@@ -36,7 +36,7 @@ def read_data_and_create_soft_labels():
 def zero_shot(model_name, input_row):
     system_text = ("You are a sentiment analysis model. Analyze the given text and provide a probability distribution "
                    "across five sentiment categories: Strongly Negative, Slightly Negative, Neutral, Slightly Positive,"
-                   " and Strongly Positive. Return your results as a Python list of floats, where each element "
+                   " and Strongly Positive. Return your results as only a Python list of floats, where each element "
                    "represents the probability of the corresponding sentiment category. The sum of all probabilities "
                    "must equal 1.0.")
     prompt = "Textual Input: " + input_row
@@ -46,14 +46,17 @@ def zero_shot(model_name, input_row):
 def few_shot(model_name, training_data, input_row):
     system_text = ("You are a sentiment analysis model. Analyze the given text and provide a probability distribution "
                    "across five sentiment categories: Strongly Negative, Slightly Negative, Neutral, Slightly Positive,"
-                   " and Strongly Positive. Return your results as a Python list of floats, where each element "
+                   " and Strongly Positive. Return your results as only a Python list of floats, where each element "
                    "represents the probability of the corresponding sentiment category. The sum of all probabilities "
                    "must equal 1.0.")
     prompt = "Textual Input: " + input_row
 
     formatted_training = []
-    for training_piece in training_data:
-        formatted_training.append([training_piece[0], str(training_piece[1:6])])
+    for i in range(0, len(training_data)):
+        training_row = training_data.iloc[i].values  # 0 = input, 5 next values are target soft labels
+        explanation = OllamaCached.generate_explanation(model_name, training_row)
+        explained_result = explanation + " Thus the final answer is: " + str(training_row[1:6])
+        formatted_training.append([training_row[0], explained_result])
 
     return OllamaCached.few_shot(model_name, system_text, formatted_training, prompt)
 
@@ -61,7 +64,7 @@ def few_shot(model_name, training_data, input_row):
 def chain_of_thought_zero(model_name, input_row):
     system_text = ("You are a sentiment analysis model. Analyze the given text and provide a probability distribution "
                    "across five sentiment categories: Strongly Negative, Slightly Negative, Neutral, Slightly Positive,"
-                   " and Strongly Positive. Return your results as a Python list of floats, where each element "
+                   " and Strongly Positive. Return your results as only a Python list of floats, where each element "
                    "represents the probability of the corresponding sentiment category. The sum of all probabilities "
                    "must equal 1.0.")
     prompt = "Textual Input: " + input_row
@@ -71,16 +74,17 @@ def chain_of_thought_zero(model_name, input_row):
 def chain_of_thought_few(model_name, training_data, input_row):
     system_text = ("You are a sentiment analysis model. Analyze the given text and provide a probability distribution "
                    "across five sentiment categories: Strongly Negative, Slightly Negative, Neutral, Slightly Positive,"
-                   " and Strongly Positive. Return your results as a Python list of floats, where each element "
+                   " and Strongly Positive. Return your results as only a Python list of floats, where each element "
                    "represents the probability of the corresponding sentiment category. The sum of all probabilities "
                    "must equal 1.0.")
     prompt = "Textual Input: " + input_row
 
     formatted_training = []
-    for training_piece in training_data:
-        explanation = OllamaCached.generate_explanation(model_name, training_piece)
-        explained_result = explanation + " Thus the final answer is: " + str(training_piece[1:6])
-        formatted_training.append([training_piece[0], explained_result])
+    for i in range(0, len(training_data)):
+        training_row = training_data.iloc[i].values  # 0 = input, 5 next values are target soft labels
+        explanation = OllamaCached.generate_explanation(model_name, training_row)
+        explained_result = explanation + " Thus the final answer is: " + str(training_row[1:6])
+        formatted_training.append([training_row[0], explained_result])
 
     return OllamaCached.chain_of_reasoning_few_shot(model_name, system_text, formatted_training, prompt)
 
@@ -94,7 +98,7 @@ def write_to_file(name, data):
 
 if __name__ == "__main__":
     soft_labels = read_data_and_create_soft_labels()
-    model = "llama3"
+    model = "llama3:latest"
 
     zero_shot_results = []
     few_shot_results = []

@@ -1,11 +1,6 @@
 import array
-import os
 from tqdm import tqdm
 import ollama
-
-# Set environment variable to save models to the models folder in the repository.
-os.environ["OLLAMA_MODELS"] = "./models"
-os.environ["OLLAMA_KEEP_ALIVE"] = "1m"
 
 
 def check_and_download_model(model_name: str) -> None:
@@ -122,12 +117,12 @@ def chain_of_reasoning_zero_shot(model_name: str, sys_message: str, message: str
     initial_messages = [
         {"role": "system", "content": sys_message},
         {"role": "user", "content": message},
-        {"role": "assistant", "content": "Let's think step by step."}
+        {"role": "assistant", "content": "To determine the sentiment of this text, let's analyze it step-by-step. We'll"
+                                         " consider the following factors:"}
     ]
     complex_response = ollama.chat(model=model_name,
                                    messages=initial_messages,
                                    stream=False)
-
     initial_messages.append({"role": "assistant", "content": complex_response["message"]["content"]})
     initial_messages.append({"role": "assistant", "content": "Therefore, the final answer is "})
 
@@ -163,7 +158,8 @@ def chain_of_reasoning_few_shot(model_name: str, sys_message: str, training_mess
         initial_messages.append(assistant_temp)
 
     initial_messages.append({"role": "user", "content": message})
-    initial_messages.append({"role": "assistant", "content": "Let's think step by step."})
+    initial_messages.append({"role": "assistant", "content": "To determine the sentiment of this text, let's analyze "
+                                                             "it step-by-step. We'll consider the following factors:"})
 
     complex_response = ollama.chat(model=model_name,
                                    messages=initial_messages,
@@ -195,7 +191,7 @@ def generate_explanation(model_name, to_explain):
                      "follows this structure: Value 1: Strongly Negative, Value 2: Slightly Negative, Value 3: Neutral,"
                      "Value 4: Slightly Positive, Value 5: Strongly Positive. Your explanation should be informative, "
                      "focusing on the key words or phrases in the input text that most strongly contribute to the "
-                     "predicted sentiment.")
+                     "predicted sentiment. Answer with only the explanation.")
 
     initial_messages = [
         {"role": "system", "content": system_prompt},
