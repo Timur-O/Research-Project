@@ -35,23 +35,27 @@ def read_data_and_create_soft_labels():
 
 
 def zero_shot(model_name, input_row):
-    system_text = ("You are a sentiment analysis model. You analyze the text given by the user and provide a "
+    system_text = ("You are a sentiment analysis model. You will analyze the text given by the user and provide a "
                    "probability distribution across five sentiment categories: Strongly Negative, Slightly Negative, "
-                   "Neutral, Slightly Positive, and Strongly Positive. You return your results as only a Python list of"
-                   " floats (e.g. [0.2, 0.3, 0.4, 0.05, 0.05]), where each element represents the probability of the "
-                   "corresponding sentiment category. The sum of all probabilities must equal 1.0. Do not provide any"
-                   "other information except the Python list.")
+                   "Neutral, Slightly Positive, and Strongly Positive. The output should be a Python list of floats "
+                   "(e.g., [0.2, 0.3, 0.4, 0.05, 0.05]), where each element represents the probability of the "
+                   "corresponding sentiment category. The sum of all probabilities must equal 1.0. Follow these "
+                   "rules: 1) Return only the Python list of floats. 2) Ensure the sum of the probabilities equals "
+                   "1.0. If not, adjust the values proportionally. 3) Do not provide any additional information or "
+                   "text in your response. Example response: [0.2, 0.3, 0.4, 0.05, 0.05]")
     prompt = "Textual Input: " + input_row
     return OllamaCached.zero_shot(model_name, system_text, prompt)
 
 
 def few_shot(model_name, training_data, input_row):
-    system_text = ("You are a sentiment analysis model. You analyze the text given by the user and provide a "
+    system_text = ("You are a sentiment analysis model. You will analyze the text given by the user and provide a "
                    "probability distribution across five sentiment categories: Strongly Negative, Slightly Negative, "
-                   "Neutral, Slightly Positive, and Strongly Positive. You return your results as only a Python list of"
-                   " floats (e.g. [0.2, 0.3, 0.4, 0.05, 0.05]), where each element represents the probability of the "
-                   "corresponding sentiment category. The sum of all probabilities must equal 1.0. Do not provide any"
-                   "other information except the Python list.")
+                   "Neutral, Slightly Positive, and Strongly Positive. The output should be a Python list of floats "
+                   "(e.g., [0.2, 0.3, 0.4, 0.05, 0.05]), where each element represents the probability of the "
+                   "corresponding sentiment category. The sum of all probabilities must equal 1.0. Follow these "
+                   "rules: 1) Return only the Python list of floats. 2) Ensure the sum of the probabilities equals "
+                   "1.0. If not, adjust the values proportionally. 3) Do not provide any additional information or "
+                   "text in your response. Example response: [0.2, 0.3, 0.4, 0.05, 0.05]")
     prompt = "Textual Input: " + input_row
 
     formatted_training = []
@@ -64,23 +68,37 @@ def few_shot(model_name, training_data, input_row):
 
 
 def chain_of_thought_zero(model_name, input_row):
-    system_text = ("You are a sentiment analysis model. You analyze the text given by the user and provide a "
-                   "probability distribution across five sentiment categories: Strongly Negative, Slightly Negative, "
-                   "Neutral, Slightly Positive, and Strongly Positive. You first provide an explanation of how you "
-                   "get to the probability distribution and then you return your results as a Python list of floats "
-                   "(e.g. [0.2, 0.3, 0.4, 0.05, 0.05]), where each element represents the probability of the "
-                   "corresponding sentiment category. The sum of all probabilities must equal 1.0.")
+    system_text = ("You are a sentiment analysis model. You will analyze the text given by the user and provide two "
+                   "outputs: 1) A probability distribution across five sentiment categories: Strongly Negative, "
+                   "Slightly Negative, Neutral, Slightly Positive, and Strongly Positive. The output should be a "
+                   "Python list of floats (e.g., [0.2, 0.3, 0.4, 0.05, 0.05]), where each element represents the "
+                   "probability of the corresponding sentiment category. The sum of all probabilities must equal 1.0. "
+                   "Follow these rules: a) Return only the Python list of floats for this part. b) Ensure the sum of "
+                   "the probabilities equals 1.0. If not, adjust the values proportionally. 2) An explanation or "
+                   "reasoning for the results in a separate paragraph. Do not combine the two outputs. The response "
+                   "should be structured as follows: First, a separate explanation paragraph. Then, the Python list of "
+                   "floats. Example response: The text contains mixed sentiments with a stronger leaning towards "
+                   "neutrality. There are slight negative and positive sentiments detected with the use of phrases "
+                   "such as \"inconvenient\", \"annoying\", and \"supporting\", but the overall tone is "
+                   "neutral. [0.2, 0.3, 0.4, 0.05, 0.05]")
     prompt = "Textual Input: " + input_row
     return OllamaCached.chain_of_reasoning_zero_shot(model_name, system_text, prompt)
 
 
 def chain_of_thought_few(model_name, training_data, input_row):
-    system_text = ("You are a sentiment analysis model. You analyze the text given by the user and provide a "
-                   "probability distribution across five sentiment categories: Strongly Negative, Slightly Negative, "
-                   "Neutral, Slightly Positive, and Strongly Positive. You first provide an explanation of how you "
-                   "get to the probability distribution and then you return your results as a Python list of floats "
-                   "(e.g. [0.2, 0.3, 0.4, 0.05, 0.05]), where each element represents the probability of the "
-                   "corresponding sentiment category. The sum of all probabilities must equal 1.0.")
+    system_text = ("You are a sentiment analysis model. You will analyze the text given by the user and provide two "
+                   "outputs: 1) A probability distribution across five sentiment categories: Strongly Negative, "
+                   "Slightly Negative, Neutral, Slightly Positive, and Strongly Positive. The output should be a "
+                   "Python list of floats (e.g., [0.2, 0.3, 0.4, 0.05, 0.05]), where each element represents the "
+                   "probability of the corresponding sentiment category. The sum of all probabilities must equal 1.0. "
+                   "Follow these rules: a) Return only the Python list of floats for this part. b) Ensure the sum of "
+                   "the probabilities equals 1.0. If not, adjust the values proportionally. 2) An explanation or "
+                   "reasoning for the results in a separate paragraph. Do not combine the two outputs. The response "
+                   "should be structured as follows: First, a separate explanation paragraph. Then, the Python list of "
+                   "floats. Example response: The text contains mixed sentiments with a stronger leaning towards "
+                   "neutrality. There are slight negative and positive sentiments detected with the use of phrases "
+                   "such as \"inconvenient\", \"annoying\", and \"supporting\", but the overall tone is "
+                   "neutral. [0.2, 0.3, 0.4, 0.05, 0.05]")
     prompt = "Textual Input: " + input_row
 
     formatted_training = []
@@ -88,8 +106,7 @@ def chain_of_thought_few(model_name, training_data, input_row):
         training_row = training_data.iloc[t].values  # 0 = input, 5 next values are target soft labels
         explanation = OllamaCached.generate_explanation(model_name, training_row)
         correct_result = "[" + ", ".join(str(x) for x in training_row[1:6]) + "]"
-        explained_result = explanation + (" Therefore, the final answer as a Python array of floats "
-                                          "(e.g. [0.2, 0.3, 0.4, 0.05, 0.05]) is ") + correct_result
+        explained_result = explanation + "\n " + correct_result
         formatted_training.append([training_row[0], explained_result])
 
     return OllamaCached.chain_of_reasoning_few_shot(model_name, system_text, formatted_training, prompt)
