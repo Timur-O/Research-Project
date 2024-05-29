@@ -117,20 +117,23 @@ def chain_of_reasoning_zero_shot(model_name: str, sys_message: str, message: str
     initial_messages = [
         {"role": "system", "content": sys_message},
         {"role": "user", "content": message},
-        {"role": "assistant", "content": "To determine the sentiment of this text, let's analyze it step-by-step. We'll"
-                                         " consider the following factors:"}
+        {"role": "assistant", "content": "To determine the sentiment of this text, let's analyze it step-by-step. "
+                                         "We begin by considering the following: "}
     ]
+
     complex_response = ollama.chat(model=model_name,
                                    messages=initial_messages,
                                    stream=False)
-    initial_messages.append({"role": "assistant", "content": complex_response["message"]["content"]})
-    initial_messages.append({"role": "assistant", "content": "Therefore, the final answer is "})
 
-    response = ollama.chat(model=model_name,
-                           messages=initial_messages,
-                           stream=False)
+    # initial_messages.append({"role": "assistant", "content": complex_response["message"]["content"]})
+    # initial_messages.append({"role": "assistant", "content": "Therefore, the probability distribution as a Python "
+    #                                                          "array of floats (e.g. [0.2, 0.3, 0.4, 0.05, 0.05]) is "})
+    #
+    # response = ollama.chat(model=model_name,
+    #                        messages=initial_messages,
+    #                        stream=False)
 
-    return response["message"]["content"]
+    return complex_response["message"]["content"]
 
 
 def chain_of_reasoning_few_shot(model_name: str, sys_message: str, training_messages: array, message: str) -> str:
@@ -151,6 +154,7 @@ def chain_of_reasoning_few_shot(model_name: str, sys_message: str, training_mess
     initial_messages = [
         {"role": "system", "content": sys_message}
     ]
+
     for training_message in training_messages:
         user_temp = {"role": "user", "content": training_message[0]}
         assistant_temp = {"role": "assistant", "content": training_message[1]}
@@ -159,20 +163,22 @@ def chain_of_reasoning_few_shot(model_name: str, sys_message: str, training_mess
 
     initial_messages.append({"role": "user", "content": message})
     initial_messages.append({"role": "assistant", "content": "To determine the sentiment of this text, let's analyze "
-                                                             "it step-by-step. We'll consider the following factors:"})
+                                                             "it step-by-step. We begin by considering the following"
+                                                             ": "})
 
     complex_response = ollama.chat(model=model_name,
                                    messages=initial_messages,
                                    stream=False)
 
-    initial_messages.append({"role": "assistant", "content": complex_response["message"]["content"]})
-    initial_messages.append({"role": "assistant", "content": "Therefore, the final answer is "})
+    # initial_messages.append({"role": "assistant", "content": complex_response["message"]["content"]})
+    # initial_messages.append({"role": "assistant", "content": "Therefore, the probability distribution as a Python "
+    #                                                          "array of floats (e.g. [0.2, 0.3, 0.4, 0.05, 0.05]) is "})
+    #
+    # response = ollama.chat(model=model_name,
+    #                        messages=initial_messages,
+    #                        stream=False)
 
-    response = ollama.chat(model=model_name,
-                           messages=initial_messages,
-                           stream=False)
-
-    return response["message"]["content"]
+    return complex_response["message"]["content"]
 
 
 def generate_explanation(model_name, to_explain):
