@@ -101,7 +101,7 @@ def chain_of_thought_few(model_name, training_data, input_row):
     for t in range(0, len(training_data)):
         training_row = training_data.iloc[t].values  # 0 = input, 1 = target hard label
         explanation = get_or_gen_explanation(model_name, training_row)
-        explained_result = explanation + "\n " + training_row[1]
+        explained_result = explanation + "\n " + str(training_row[1])
         formatted_training.append([training_row[0], explained_result])
 
     return OllamaCached.chain_of_reasoning_few_shot(model_name, system_text, formatted_training, prompt)
@@ -169,7 +169,7 @@ if __name__ == "__main__":
             except Exception as e:
                 print(e)
                 print("Oopsi, trying zero again!")
-        zero_shot_predicted = zero_result_extracted
+        zero_shot_predicted = str(zero_result_extracted)
 
         few_result_extracted = -1
         while few_result_extracted == -1:
@@ -179,7 +179,7 @@ if __name__ == "__main__":
             except Exception as e:
                 print(e)
                 print("Oopsi, trying few again!")
-        few_shot_predicted = few_result_extracted
+        few_shot_predicted = str(few_result_extracted)
 
         cot_zero_result_extracted = -1
         while cot_zero_result_extracted == -1:
@@ -189,7 +189,7 @@ if __name__ == "__main__":
             except Exception as e:
                 print(e)
                 print("Oopsi, trying cot_zero again!")
-        chain_of_thought_zero_predicted = cot_zero_result_extracted
+        chain_of_thought_zero_predicted = str(cot_zero_result_extracted)
 
         cot_few_result_extracted = -1
         while cot_few_result_extracted == -1:
@@ -199,8 +199,7 @@ if __name__ == "__main__":
             except Exception as e:
                 print(e)
                 print("Oopsi, trying cot_few again!")
-        chain_of_thought_few_predicted += cot_few_result_extracted
-        chain_of_thought_few_predicted = cot_few_result_extracted
+        chain_of_thought_few_predicted = str(cot_few_result_extracted)
 
         zero_shot_results.append(zero_shot_predicted)
         few_shot_results.append(few_shot_predicted)

@@ -209,7 +209,6 @@ if __name__ == "__main__":
                 except Exception as e:
                     print(e)
                     print("Oopsi, trying cot_few again!")
-            chain_of_thought_few_predicted += cot_few_result_extracted
             chain_of_thought_few_predicted = list(
                 map(operator.add, chain_of_thought_few_predicted, cot_few_result_extracted)
             )

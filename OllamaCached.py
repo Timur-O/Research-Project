@@ -87,7 +87,7 @@ def few_shot(model_name: str, sys_message: str, training_messages: array, messag
     ]
     for training_message in training_messages:
         user_temp = {"role": "user", "content": training_message[0]}
-        assistant_temp = {"role": "assistant", "content": training_message[1]}
+        assistant_temp = {"role": "assistant", "content": str(training_message[1])}
         initial_messages.append(user_temp)
         initial_messages.append(assistant_temp)
 
