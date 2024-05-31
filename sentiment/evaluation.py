@@ -8,35 +8,47 @@ def accuracy(true_values, predicted_values):
 
 
 def precision(true_values, predicted_values):
-    return np.sum(true_values * predicted_values) / np.sum(predicted_values)
+    tp = np.sum((predicted_values == true_values) & (predicted_values > 0))
+    fp = np.sum((predicted_values != true_values) & (predicted_values > 0))
+    return tp / (tp + fp) if (tp + fp) > 0 else 0
 
 
 def recall(true_values, predicted_values):
-    return np.sum(true_values * predicted_values) / np.sum(true_values)
+    tp = np.sum((predicted_values == true_values) & (true_values > 0))
+    fn = np.sum((predicted_values != true_values) & (true_values > 0))
+    return tp / (tp + fn) if (tp + fn) > 0 else 0
 
 
 def f1_score(true_values, predicted_values):
     prec = precision(true_values, predicted_values)
     rec = recall(true_values, predicted_values)
-    return 2 * (prec * rec) / (prec + rec)
+    return 2 * (prec * rec) / (prec + rec) if (prec + rec) > 0 else 0
+
+
+def cosine_similarity(a, b):
+    dot_product = np.dot(a, b)
+    norm_a = np.linalg.norm(a)
+    norm_b = np.linalg.norm(b)
+    return dot_product / (norm_a * norm_b)
 
 
 def fuzzy_accuracy(true_values, predicted_values):
-    return np.sum(np.max(true_values) == np.max(predicted_values)) / len(true_values)
+    similarities = [cosine_similarity(true_values[i], predicted_values[i]) for i in range(len(true_values))]
+    return np.mean(similarities)
 
 
 def fuzzy_precision(true_values, predicted_values):
-    return np.sum(np.minimum(true_values, predicted_values)) / np.sum(predicted_values)
+    return np.sum(np.minimum(true_values, predicted_values)) / np.sum(predicted_values) if np.sum(predicted_values) > 0 else 0
 
 
 def fuzzy_recall(true_values, predicted_values):
-    return np.sum(np.minimum(true_values, predicted_values)) / np.sum(true_values)
+    return np.sum(np.minimum(true_values, predicted_values)) / np.sum(true_values) if np.sum(true_values) > 0 else 0
 
 
 def fuzzy_f1_score(true_values, predicted_values):
     prec = fuzzy_precision(true_values, predicted_values)
     rec = fuzzy_recall(true_values, predicted_values)
-    return 2 * (prec * rec) / (prec + rec)
+    return 2 * (prec * rec) / (prec + rec) if (prec + rec) > 0 else 0
 
 
 def load_values(filename, column_index):
