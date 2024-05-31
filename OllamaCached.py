@@ -160,7 +160,7 @@ def chain_of_reasoning_few_shot(model_name: str, sys_message: str, training_mess
     return complex_response["message"]["content"]
 
 
-def generate_explanation(model_name, to_explain):
+def generate_explanation_soft(model_name, to_explain):
     """
     Generate an explanation given a sentiment and a result.
 
@@ -181,6 +181,35 @@ def generate_explanation(model_name, to_explain):
     initial_messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": "Input: " + to_explain[0] + " / Result to Explain: " + str(to_explain[1:5])}
+    ]
+
+    response = ollama.chat(model=model_name,
+                           messages=initial_messages,
+                           stream=False)
+
+    return response["message"]["content"]
+
+
+def generate_explanation_hard(model_name, to_explain):
+    """
+    Generate an explanation given a sentiment and a result.
+
+    Args:
+        model_name: The name of the LLM model
+        to_explain: The input to explain [0] and the correct label [1]
+    Returns:
+        The explanation of how this result is achieved.
+    """
+    system_prompt = ("You are an explanation generation model. Given an input text and its corresponding sentiment, "
+                     "your task is to craft a concise, three-sentence explanation that clarifies why the input text "
+                     "aligns with the predicted sentiment. The sentiment label corresponds to the following: 0: "
+                     "Strongly Negative, 1: Slightly Negative, 2: Neutral, 3: Slightly Positive, 4: Strongly Positive. "
+                     "Your explanation should be informative, focusing on the key words or phrases in the input text "
+                     "that most strongly contribute to the predicted sentiment. Answer with only the explanation.")
+
+    initial_messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": "Input: " + to_explain[0] + " / Result to Explain: " + str(to_explain[1])}
     ]
 
     response = ollama.chat(model=model_name,

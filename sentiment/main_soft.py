@@ -113,21 +113,21 @@ def chain_of_thought_few(model_name, training_data, input_row):
 
 
 def get_or_gen_explanation(model_name, training_row):
-    with open('../data/explanations.csv', 'r') as file:
+    with open('../data/explanations_soft.csv', 'r') as file:
         reader = csv.reader(file)
         rows = list(reader)
 
     temp_exp = ""
     for row in rows:
         if row[0] == training_row[0]:
-            if row[1] != "":
+            try:
                 return row[1]
-            else:
-                temp_exp = OllamaCached.generate_explanation(model_name, training_row)
-                row[1] = temp_exp
+            except IndexError:
+                temp_exp = OllamaCached.generate_explanation_soft(model_name, training_row)
+                row.append(temp_exp)
                 break
 
-    with open('../data/explanations.csv', 'w', newline='') as file:
+    with open('../data/explanations_soft.csv', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerows(rows)
 
@@ -174,7 +174,8 @@ if __name__ == "__main__":
                 try:
                     zero_result = zero_shot(model, input_and_target_results[0])
                     zero_result_extracted = extract_python_array(zero_result)
-                except Exception:
+                except Exception as e:
+                    print(e)
                     print("Oopsi, trying zero again!")
             zero_shot_predicted = list(map(operator.add, zero_shot_predicted, zero_result_extracted))
 
@@ -183,7 +184,8 @@ if __name__ == "__main__":
                 try:
                     few_result = few_shot(model, train_df, input_and_target_results[0])
                     few_result_extracted = extract_python_array(few_result)
-                except Exception:
+                except Exception as e:
+                    print(e)
                     print("Oopsi, trying few again!")
             few_shot_predicted = list(map(operator.add, few_shot_predicted, few_result_extracted))
 
@@ -192,7 +194,8 @@ if __name__ == "__main__":
                 try:
                     cot_zero_result = chain_of_thought_zero(model, input_and_target_results[0])
                     cot_zero_result_extracted = extract_python_array(cot_zero_result)
-                except Exception:
+                except Exception as e:
+                    print(e)
                     print("Oopsi, trying cot_zero again!")
             chain_of_thought_zero_predicted = list(
                 map(operator.add, chain_of_thought_zero_predicted, cot_zero_result_extracted)
@@ -203,7 +206,8 @@ if __name__ == "__main__":
                 try:
                     cot_few_result = chain_of_thought_few(model, train_df, input_and_target_results[0])
                     cot_few_result_extracted = extract_python_array(cot_few_result)
-                except Exception:
+                except Exception as e:
+                    print(e)
                     print("Oopsi, trying cot_few again!")
             chain_of_thought_few_predicted += cot_few_result_extracted
             chain_of_thought_few_predicted = list(
@@ -215,7 +219,7 @@ if __name__ == "__main__":
         chain_of_thought_zero_results.append([float(x) / 3.0 for x in chain_of_thought_zero_predicted])
         chain_of_thought_few_results.append([float(x) / 3.0 for x in chain_of_thought_few_predicted])
 
-    write_to_file("zero_shot_res", zero_shot_results)
-    write_to_file("few_shot_res", few_shot_results)
-    write_to_file("cot_zero_res", chain_of_thought_zero_results)
-    write_to_file("cot_few_res", chain_of_thought_few_results)
+    write_to_file("zero_shot_res_soft", zero_shot_results)
+    write_to_file("few_shot_res_soft", few_shot_results)
+    write_to_file("cot_zero_res_soft", chain_of_thought_zero_results)
+    write_to_file("cot_few_res_soft", chain_of_thought_few_results)
