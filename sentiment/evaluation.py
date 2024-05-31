@@ -114,6 +114,7 @@ if __name__ == "__main__":
     # Define labels and values
     labels = ['Zero-Shot', 'Few-Shot', 'CoT-Zero', 'CoT-Few']
     x = np.arange(len(labels))  # Create x coordinates for the bars
+
     values_accuracy_hard = [accuracy_value_zero, accuracy_value_few, accuracy_value_cot_zero, accuracy_value_cot_few]
     values_accuracy_soft = [fuzzy_accuracy_value_zero, fuzzy_accuracy_value_few, fuzzy_accuracy_value_cot_zero, fuzzy_accuracy_value_cot_few]
     values_precision_hard = [precision_value_zero, precision_value_few, precision_value_cot_zero, precision_value_cot_few]
@@ -124,37 +125,57 @@ if __name__ == "__main__":
     values_f1_soft = [fuzzy_f1_value_zero, fuzzy_f1_value_few, fuzzy_f1_value_cot_zero, fuzzy_f1_value_cot_few]
 
     # Create Accuracy Chart
-    plt.bar(x - 0.2, values_accuracy_hard, 0.4, color='b')
-    plt.bar(x + 0.2, values_accuracy_soft, 0.4, color='r')
-    plt.title('Comparison of Accuracy')
-    plt.xlabel('Method')
-    plt.ylabel('Accuracy (%)')
-    plt.xticks(x, labels)
+    print(values_accuracy_hard)
+    print(values_accuracy_soft)
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.bar(x - 0.2, values_accuracy_hard, 0.4, label='Hard Accuracy', color='b')
+    ax.bar(x + 0.2, values_accuracy_soft, 0.4, label='Soft Accuracy', color='r')
+    ax.set_title('Comparison of Accuracy')
+    ax.set_xlabel('Method')
+    ax.set_ylabel('Accuracy')
+    ax.set_xticklabels(labels)
+    ax.set_xticks(x)
+    ax.legend()
     plt.show()
 
     # Create Precision Chart
-    plt.bar(x - 0.2, values_precision_hard, 0.4, color='b')
-    plt.bar(x + 0.2, values_precision_soft, 0.4, color='r')
-    plt.title('Comparison of Precision')
-    plt.xlabel('Method')
-    plt.ylabel('Precision')
-    plt.xticks(x, labels)
+    print(values_precision_hard)
+    print(values_precision_soft)
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.bar(x - 0.2, values_precision_hard, 0.4, label='Hard Precision', color='b')
+    ax.bar(x + 0.2, values_precision_soft, 0.4, label='Soft Precision', color='r')
+    ax.set_title('Comparison of Precision')
+    ax.set_xlabel('Method')
+    ax.set_ylabel('Precision')
+    ax.set_xticklabels(labels)
+    ax.set_xticks(x)
+    ax.legend()
     plt.show()
 
     # Create Recall Chart
-    plt.bar(x - 0.2, values_recall_hard, 0.4, color='b')
-    plt.bar(x + 0.2, values_recall_soft, 0.4, color='r')
-    plt.title('Comparison of Recall')
-    plt.xlabel('Method')
-    plt.ylabel('Recall')
-    plt.xticks(x, labels)
+    print(values_recall_hard)
+    print(values_recall_soft)
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.bar(x - 0.2, values_recall_hard, 0.4, label='Hard Recall', color='b')
+    ax.bar(x + 0.2, values_recall_soft, 0.4, label='Soft Recall', color='r')
+    ax.set_title('Comparison of Recall')
+    ax.set_xlabel('Method')
+    ax.set_ylabel('Recall')
+    ax.set_xticklabels(labels)
+    ax.set_xticks(x)
+    ax.legend()
     plt.show()
 
     # Create F1 Score Chart
-    plt.bar(x - 0.2, values_f1_hard, 0.4, color='b')
-    plt.bar(x + 0.2, values_f1_soft, 0.4, color='r')
-    plt.title('Comparison of F1-Scores')
-    plt.xlabel('Method')
-    plt.ylabel('F1 Score')
-    plt.xticks(x, labels)
+    print(values_f1_hard)
+    print(values_f1_soft)
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.bar(x - 0.2, values_f1_hard, 0.4, label='Hard F1 Score', color='b')
+    ax.bar(x + 0.2, values_f1_soft, 0.4, label='Soft F1 Score', color='r')
+    ax.set_title('Comparison of F1 Scores')
+    ax.set_xlabel('Method')
+    ax.set_ylabel('F1 Score')
+    ax.set_xticklabels(labels)
+    ax.set_xticks(x)
+    ax.legend()
     plt.show()
