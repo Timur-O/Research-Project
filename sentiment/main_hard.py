@@ -28,7 +28,7 @@ def read_data_and_create_hard_labels():
         majority_percentage = 0
         for t in range(1, 6):
             if temp[t] > majority_percentage:
-                majority = t
+                majority = t - 1
                 majority_percentage = temp[t]
         hard_labelled_data.append([temp[0], majority])
 
