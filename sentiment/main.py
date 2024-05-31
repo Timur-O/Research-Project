@@ -16,7 +16,7 @@ def read_data_and_create_soft_labels():
 
     soft_labelled_data = []
 
-    for al in range(0, 25):  # range max should be the amount of annotated labels
+    for al in range(0, 50):  # range max should be the amount of annotated labels
         temp = [data_timur.iloc[al].values[5], 0, 0, 0, 0, 0]
         for data in all_data:
             temp[int(data.iloc[al].values[6] + 1)] += 1
@@ -104,12 +104,34 @@ def chain_of_thought_few(model_name, training_data, input_row):
     formatted_training = []
     for t in range(0, len(training_data)):
         training_row = training_data.iloc[t].values  # 0 = input, 5 next values are target soft labels
-        explanation = OllamaCached.generate_explanation(model_name, training_row)
+        explanation = get_or_gen_explanation(model_name, training_row)
         correct_result = "[" + ", ".join(str(x) for x in training_row[1:6]) + "]"
         explained_result = explanation + "\n " + correct_result
         formatted_training.append([training_row[0], explained_result])
 
     return OllamaCached.chain_of_reasoning_few_shot(model_name, system_text, formatted_training, prompt)
+
+
+def get_or_gen_explanation(model_name, training_row):
+    with open('../data/explanations.csv', 'r') as file:
+        reader = csv.reader(file)
+        rows = list(reader)
+
+    temp_exp = ""
+    for row in rows:
+        if row[0] == training_row[0]:
+            if row[1] != "":
+                return row[1]
+            else:
+                temp_exp = OllamaCached.generate_explanation(model_name, training_row)
+                row[1] = temp_exp
+                break
+
+    with open('../data/explanations.csv', 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(rows)
+
+    return temp_exp
 
 
 def write_to_file(name, data):
@@ -147,19 +169,42 @@ if __name__ == "__main__":
         chain_of_thought_few_predicted = [0, 0, 0, 0, 0]
 
         for j in range(0, 3):
-            zero_result = zero_shot(model, input_and_target_results[0])
-            zero_result_extracted = extract_python_array(zero_result)
+            zero_result_extracted = ""
+            while zero_result_extracted == "":
+                try:
+                    zero_result = zero_shot(model, input_and_target_results[0])
+                    zero_result_extracted = extract_python_array(zero_result)
+                except Exception:
+                    print("Oopsi, trying zero again!")
             zero_shot_predicted = list(map(operator.add, zero_shot_predicted, zero_result_extracted))
-            few_result = few_shot(model, train_df, input_and_target_results[0])
-            few_result_extracted = extract_python_array(few_result)
+
+            few_result_extracted = ""
+            while few_result_extracted == "":
+                try:
+                    few_result = few_shot(model, train_df, input_and_target_results[0])
+                    few_result_extracted = extract_python_array(few_result)
+                except Exception:
+                    print("Oopsi, trying few again!")
             few_shot_predicted = list(map(operator.add, few_shot_predicted, few_result_extracted))
-            cot_zero_result = chain_of_thought_zero(model, input_and_target_results[0])
-            cot_zero_result_extracted = extract_python_array(cot_zero_result)
+
+            cot_zero_result_extracted = ""
+            while cot_zero_result_extracted == "":
+                try:
+                    cot_zero_result = chain_of_thought_zero(model, input_and_target_results[0])
+                    cot_zero_result_extracted = extract_python_array(cot_zero_result)
+                except Exception:
+                    print("Oopsi, trying cot_zero again!")
             chain_of_thought_zero_predicted = list(
                 map(operator.add, chain_of_thought_zero_predicted, cot_zero_result_extracted)
             )
-            cot_few_result = chain_of_thought_few(model, train_df, input_and_target_results[0])
-            cot_few_result_extracted = extract_python_array(cot_few_result)
+
+            cot_few_result_extracted = ""
+            while cot_few_result_extracted == "":
+                try:
+                    cot_few_result = chain_of_thought_few(model, train_df, input_and_target_results[0])
+                    cot_few_result_extracted = extract_python_array(cot_few_result)
+                except Exception:
+                    print("Oopsi, trying cot_few again!")
             chain_of_thought_few_predicted += cot_few_result_extracted
             chain_of_thought_few_predicted = list(
                 map(operator.add, chain_of_thought_few_predicted, cot_few_result_extracted)
@@ -172,5 +217,5 @@ if __name__ == "__main__":
 
     write_to_file("zero_shot_res", zero_shot_results)
     write_to_file("few_shot_res", few_shot_results)
-    write_to_file("chain_of_thought_zero", chain_of_thought_zero_results)
-    write_to_file("chain_of_thought_few", chain_of_thought_few_results)
+    write_to_file("cot_zero_res", chain_of_thought_zero_results)
+    write_to_file("cot_few_res", chain_of_thought_few_results)
