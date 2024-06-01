@@ -1,6 +1,6 @@
-import array
 from tqdm import tqdm
 import ollama
+import array
 
 
 def check_and_download_model(model_name: str) -> None:
@@ -12,11 +12,13 @@ def check_and_download_model(model_name: str) -> None:
     """
     model_exists: bool = False
 
+    # Check the existing models
     existing_models = ollama.list()["models"]
     for model in existing_models:
         if model["name"] == model_name:
             model_exists = True
 
+    # Download the model if it does not exist
     if not model_exists:
         print("Model Uncached - Downloading...")
         current_digest, bars = '', {}
@@ -43,7 +45,7 @@ def check_and_download_model(model_name: str) -> None:
 
 def zero_shot(model_name: str, sys_message: str, message: str) -> str:
     """
-    Chat with the llm without any prior training (i.e. zero-shot)
+    Send a message to the llm without any prior training (i.e. zero-shot)
 
     Args:
         model_name (str): Tag of the LLM.
@@ -52,14 +54,15 @@ def zero_shot(model_name: str, sys_message: str, message: str) -> str:
     Returns:
         response (str): The response from the assistant.
     """
+    print("Zero Shot...")
+
     check_and_download_model(model_name)
-
-    print("Zero Shot (" + model_name + "):")
-
     initial_messages = [
         {"role": "system", "content": sys_message},
         {"role": "user", "content": message}
     ]
+
+    # Send the message and get the response from the assistant
     response = ollama.chat(model=model_name,
                            messages=initial_messages,
                            stream=False)
@@ -68,7 +71,7 @@ def zero_shot(model_name: str, sys_message: str, message: str) -> str:
 
 def few_shot(model_name: str, sys_message: str, training_messages: array, message: str) -> str:
     """
-    Chat with the llm and provide some training samples for few-shot learning.
+    Send a message to the llm and provide some training samples for few-shot learning.
 
     Args:
         model_name (str): Tag of the LLM.
@@ -78,10 +81,10 @@ def few_shot(model_name: str, sys_message: str, training_messages: array, messag
     Returns:
         response (str): The response from the assistant.
     """
+    print("Few Shot...")
+
+    # Prepare the training history
     check_and_download_model(model_name)
-
-    print("Few Shot (" + model_name + "): " + str(len(training_messages)) + " Samples")
-
     initial_messages = [
         {"role": "system", "content": sys_message}
     ]
@@ -90,9 +93,9 @@ def few_shot(model_name: str, sys_message: str, training_messages: array, messag
         assistant_temp = {"role": "assistant", "content": str(training_message[1])}
         initial_messages.append(user_temp)
         initial_messages.append(assistant_temp)
-
     initial_messages.append({"role": "user", "content": message})
 
+    # Send the message and get the response from the assistant
     response = ollama.chat(model=model_name,
                            messages=initial_messages,
                            stream=False)
@@ -101,7 +104,7 @@ def few_shot(model_name: str, sys_message: str, training_messages: array, messag
 
 def chain_of_reasoning_zero_shot(model_name: str, sys_message: str, message: str) -> str:
     """
-    Chat with the llm without any prior training (i.e. zero-shot), but with chain of thought reasoning.
+    Send a message to the llm without any prior training (i.e. zero-shot), but with chain of thought reasoning.
 
     Args:
         model_name (str): Tag of the LLM.
@@ -110,25 +113,25 @@ def chain_of_reasoning_zero_shot(model_name: str, sys_message: str, message: str
     Returns:
         response (str): The response from the assistant.
     """
+    print("Chain-of-Thought - Zero-Shot...")
+
     check_and_download_model(model_name)
-
-    print("Chain-of-Thought - Zero-Shot (" + model_name + "):")
-
     initial_messages = [
         {"role": "system", "content": sys_message},
         {"role": "user", "content": message}
     ]
 
+    # Send the message and get the response from the assistant
     complex_response = ollama.chat(model=model_name,
                                    messages=initial_messages,
                                    stream=False)
-
     return complex_response["message"]["content"]
 
 
 def chain_of_reasoning_few_shot(model_name: str, sys_message: str, training_messages: array, message: str) -> str:
     """
-    Chat with the llm and provide some training samples for few-shot learning, but also with chain of thought reasoning.
+    Send a message to the llm and provide some training samples for few-shot learning, but also with chain of thought
+    reasoning.
 
     Args:
         model_name (str): Tag of the LLM.
@@ -138,10 +141,10 @@ def chain_of_reasoning_few_shot(model_name: str, sys_message: str, training_mess
     Returns:
         response (str): The response from the assistant.
     """
+    print("Chain-Of-Thought Few-Shot...")
+
+    # Prepare the training history
     check_and_download_model(model_name)
-
-    print("Chain-Of-Thought Few-Shot (" + model_name + "): " + str(len(training_messages)) + " Samples")
-
     initial_messages = [
         {"role": "system", "content": sys_message}
     ]
@@ -150,19 +153,18 @@ def chain_of_reasoning_few_shot(model_name: str, sys_message: str, training_mess
         assistant_temp = {"role": "assistant", "content": training_message[1]}
         initial_messages.append(user_temp)
         initial_messages.append(assistant_temp)
-
     initial_messages.append({"role": "user", "content": message})
 
+    # Send the message and get the response from the assistant
     complex_response = ollama.chat(model=model_name,
                                    messages=initial_messages,
                                    stream=False)
-
     return complex_response["message"]["content"]
 
 
 def generate_explanation_soft(model_name, to_explain):
     """
-    Generate an explanation given a sentiment and a result.
+    Generate an explanation given a sentiment and a result in a soft-label setting.
 
     Args:
         model_name: The name of the LLM model
@@ -177,22 +179,21 @@ def generate_explanation_soft(model_name, to_explain):
                      "Value 4: Slightly Positive, Value 5: Strongly Positive. Your explanation should be informative, "
                      "focusing on the key words or phrases in the input text that most strongly contribute to the "
                      "predicted sentiment. Answer with only the explanation.")
-
     initial_messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": "Input: " + to_explain[0] + " / Result to Explain: " + str(to_explain[1:5])}
     ]
 
+    # Send the message and get the response from the assistant
     response = ollama.chat(model=model_name,
                            messages=initial_messages,
                            stream=False)
-
     return response["message"]["content"]
 
 
 def generate_explanation_hard(model_name, to_explain):
     """
-    Generate an explanation given a sentiment and a result.
+    Generate an explanation given a sentiment and a result for a hard-label setting.
 
     Args:
         model_name: The name of the LLM model
@@ -206,14 +207,13 @@ def generate_explanation_hard(model_name, to_explain):
                      "Strongly Negative, 1: Slightly Negative, 2: Neutral, 3: Slightly Positive, 4: Strongly Positive. "
                      "Your explanation should be informative, focusing on the key words or phrases in the input text "
                      "that most strongly contribute to the predicted sentiment. Answer with only the explanation.")
-
     initial_messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": "Input: " + to_explain[0] + " / Result to Explain: " + str(to_explain[1])}
     ]
 
+    # Send the message and get the response from the assistant
     response = ollama.chat(model=model_name,
                            messages=initial_messages,
                            stream=False)
-
     return response["message"]["content"]

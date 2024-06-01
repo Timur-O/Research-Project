@@ -1,9 +1,13 @@
-from datasets import load_dataset
+from transformers import Trainer, TrainingArguments, DataCollatorForLanguageModeling
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import LoraConfig, get_peft_model
-from transformers import Trainer, TrainingArguments, DataCollatorForLanguageModeling
+from datasets import load_dataset
+
 
 if __name__ == "__main__":
+    """
+    Run this script to fine-tune the Meta-Llama model on the sentiment analysis dataset, to generate a fine-tuned model.
+    """
     # Loading Dataset
     dataset = load_dataset('../data/combined_data.csv')
 
@@ -12,7 +16,7 @@ if __name__ == "__main__":
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForCausalLM.from_pretrained(model_name)
 
-    # Define LoRA configuration
+    # Define the LoRA configuration
     lora_config = LoraConfig(
         r=8,  # Rank
         lora_alpha=16,  # Scaling parameter
@@ -56,6 +60,6 @@ if __name__ == "__main__":
     # Start Training
     trainer.train()
 
-    # Save Model
+    # Save the Model
     model.save_pretrained("../models/llama-3-sentiment-finetuned")
     tokenizer.save_pretrained("../models/llama-3-sentiment-finetuned")
