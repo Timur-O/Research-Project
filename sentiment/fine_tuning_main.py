@@ -1,7 +1,27 @@
 from transformers import Trainer, TrainingArguments, DataCollatorForLanguageModeling
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from sklearn.model_selection import train_test_split
 from peft import LoraConfig, get_peft_model
-from datasets import load_dataset
+from torch.utils.data import Dataset
+from torch import tensor
+import pandas as pd
+
+
+class SentimentDataset(Dataset):
+    def __init__(self, dataframe, tokenizer):
+        self.dataframe = dataframe
+        self.tokenizer = tokenizer
+
+    def __len__(self):
+        return len(self.dataframe)
+
+    def __getitem__(self, idx):
+        row = self.dataframe.iloc[idx]
+        text = row['text']
+        label = row['label']
+        inputs = self.tokenizer(text, return_tensors='pt')
+        inputs['labels'] = tensor([label]).long()
+        return inputs
 
 
 if __name__ == "__main__":
@@ -9,12 +29,21 @@ if __name__ == "__main__":
     Run this script to fine-tune the Meta-Llama model on the sentiment analysis dataset, to generate a fine-tuned model.
     """
     # Loading Dataset
-    dataset = load_dataset('../data/combined_data.csv')
+    dataset = pd.read_csv('../data/combined_data_hard.csv').values
 
-    # Loading Model
+    # Split the dataset into training, validation, and test sets
+    train_df, temp_df = train_test_split(dataset, test_size=0.4, random_state=42)
+    val_df, test_df = train_test_split(temp_df, test_size=0.5, random_state=42)
+
+    # Load the Meta-Llama model and tokenizer
     model_name = "meta-llama/Meta-Llama-3-8B"
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForCausalLM.from_pretrained(model_name)
+
+    # Load your prepared data
+    train_dataset = SentimentDataset(train_df, tokenizer)
+    val_dataset = SentimentDataset(val_df, tokenizer)
+    test_dataset = SentimentDataset(test_df, tokenizer)
 
     # Define the LoRA configuration
     lora_config = LoraConfig(
@@ -28,7 +57,7 @@ if __name__ == "__main__":
     # Apply LoRA to the model
     model = get_peft_model(model, lora_config)
 
-    # Prepare Training
+    # Prepare the training
     training_args = TrainingArguments(
         output_dir="../models/llama-3-sentiment-finetuned",
         overwrite_output_dir=True,
@@ -49,17 +78,18 @@ if __name__ == "__main__":
         mlm=False,
     )
 
+    # Initialize the Trainer
     trainer = Trainer(
         model=model,
         args=training_args,
         data_collator=data_collator,
-        train_dataset=dataset["train"],
-        eval_dataset=dataset["validation"],
+        train_dataset=train_dataset,
+        eval_dataset=val_dataset,
     )
 
-    # Start Training
+    # Start the training
     trainer.train()
 
-    # Save the Model
+    # Save the fine-tuned model
     model.save_pretrained("../models/llama-3-sentiment-finetuned")
     tokenizer.save_pretrained("../models/llama-3-sentiment-finetuned")
