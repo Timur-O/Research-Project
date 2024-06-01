@@ -19,7 +19,8 @@ class SentimentDataset(Dataset):
         row = self.dataframe.iloc[idx]
         text = row['text']
         label = row['label']
-        inputs = self.tokenizer(text, return_tensors='pt')
+        inputs = self.tokenizer(text, return_tensors='pt', padding='max_length', truncation=True, max_length=512)
+        inputs = {k: v.squeeze(0) for k, v in inputs.items()}  # Remove batch dimension
         inputs['labels'] = tensor([label]).long()
         return inputs
 
@@ -29,10 +30,10 @@ if __name__ == "__main__":
     Run this script to fine-tune the Meta-Llama model on the sentiment analysis dataset, to generate a fine-tuned model.
     """
     # Loading Dataset
-    dataset = pd.read_csv('../data/combined_data_hard.csv').values
+    dataframe = pd.read_csv('../data/combined_data_hard.csv')
 
     # Split the dataset into training, validation, and test sets
-    train_df, temp_df = train_test_split(dataset, test_size=0.4, random_state=42)
+    train_df, temp_df = train_test_split(dataframe, test_size=0.4, random_state=42)
     val_df, test_df = train_test_split(temp_df, test_size=0.5, random_state=42)
 
     # Load the Meta-Llama model and tokenizer
