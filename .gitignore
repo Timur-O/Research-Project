@@ -157,3 +157,5 @@ cython_debug/
 
 # Ignore Data in the Data Folder
 data/
+models/
+bitsandbytes/
