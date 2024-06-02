@@ -17,7 +17,7 @@ class SentimentDataset(Dataset):
 
     def __getitem__(self, idx):
         row = self.dataframe.iloc[idx]
-        text = row['text']
+        text = row['input']
         label = row['label']
         inputs = self.tokenizer(text, return_tensors='pt', padding='max_length', truncation=True, max_length=512)
         inputs = {k: v.squeeze(0) for k, v in inputs.items()}  # Remove batch dimension
@@ -39,6 +39,7 @@ if __name__ == "__main__":
     # Load the Meta-Llama model and tokenizer
     model_name = "meta-llama/Meta-Llama-3-8B"
     tokenizer = AutoTokenizer.from_pretrained(model_name)
+    tokenizer.pad_token = tokenizer.eos_token
     model = AutoModelForCausalLM.from_pretrained(model_name)
 
     # Load your prepared data
