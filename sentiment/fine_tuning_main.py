@@ -5,6 +5,7 @@ from peft import LoraConfig, get_peft_model
 from torch.utils.data import Dataset
 from torch import tensor
 import pandas as pd
+import faulthandler
 
 
 class SentimentDataset(Dataset):
@@ -29,6 +30,8 @@ if __name__ == "__main__":
     """
     Run this script to fine-tune the Meta-Llama model on the sentiment analysis dataset, to generate a fine-tuned model.
     """
+    faulthandler.enable()
+
     # Loading Dataset
     dataframe = pd.read_csv('../data/combined_data_hard.csv')
 
