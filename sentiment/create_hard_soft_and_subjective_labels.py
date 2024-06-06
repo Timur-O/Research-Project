@@ -62,5 +62,5 @@ if __name__ == "__main__":
     # Write the "correct" labels for subjective labels to a CSV file
     with open('subjective_labels.csv', 'w', newline='') as csvfile:
         csvwriter = csv.writer(csvfile)
-        for row in test_df_hard:
+        for row in test_df_subj:
             csvwriter.writerow(row)

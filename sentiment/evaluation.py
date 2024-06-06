@@ -132,18 +132,21 @@ if __name__ == "__main__":
     # Load the true and predicted values
     hard_true = np.array(load_values('../../Results/hard_labels.csv', 1))
     soft_true = np.array(load_values('../../Results/soft_labels.csv', 1))
+    subj_true = np.array(load_values('../../Results/subjective_labels.csv', 0))
 
     pred_zero_hard = np.array(load_values('../../Results/zero_shot_res_hard.csv', 0))
     pred_zero_soft = np.array(load_values('../../Results/zero_shot_res_soft.csv', 0))
 
     pred_few_hard = np.array(load_values('../../Results/few_shot_res_hard.csv', 0))
     pred_few_soft = np.array(load_values('../../Results/few_shot_res_soft.csv', 0))
+    pred_few_subj = np.array(load_values('../../Results/few_shot_res_subjectivity.csv', 0))
 
     pred_cot_zero_hard = np.array(load_values('../../Results/cot_zero_res_hard.csv', 0))
     pred_cot_zero_soft = np.array(load_values('../../Results/cot_zero_res_soft.csv', 0))
 
     pred_cot_few_hard = np.array(load_values('../../Results/cot_few_res_hard.csv', 0))
     pred_cot_few_soft = np.array(load_values('../../Results/cot_few_res_soft.csv', 0))
+    pred_cot_few_subj = np.array(load_values('../../Results/cot_few_res_subjectivity.csv', 0))
 
     # Calculate the evaluation metrics for the Zero-Shot method
     print('Zero Shot Evaluation')
@@ -167,6 +170,17 @@ if __name__ == "__main__":
     fuzzy_recall_value_few = fuzzy_recall(soft_true, pred_few_soft)
     fuzzy_f1_value_few = fuzzy_f1_score(soft_true, pred_few_soft)
 
+    subjective_accuracy_few = []
+    subjective_precision_few = []
+    subjective_recall_few = []
+    subjective_f1_few = []
+    for i in range(0, 5):
+        print('Subjectivity', i)
+        subjective_accuracy_few.append(accuracy(subj_true[:, i], pred_few_subj[:, i]))
+        subjective_precision_few.append(precision(subj_true[:, i], pred_few_subj[:, i]))
+        subjective_recall_few.append(recall(subj_true[:, i], pred_few_subj[:, i]))
+        subjective_f1_few.append(f1_score(subj_true[:, i], pred_few_subj[:, i]))
+
     # Calculate the evaluation metrics for the CoT Zero-Shot method
     print('Cot Zero Shot Evaluation')
     accuracy_value_cot_zero = accuracy(hard_true, pred_cot_zero_hard)
@@ -188,6 +202,17 @@ if __name__ == "__main__":
     fuzzy_precision_value_cot_few = fuzzy_precision(soft_true, pred_cot_few_soft)
     fuzzy_recall_value_cot_few = fuzzy_recall(soft_true, pred_cot_few_soft)
     fuzzy_f1_value_cot_few = fuzzy_f1_score(soft_true, pred_cot_few_soft)
+
+    subjective_accuracy_cot_few = []
+    subjective_precision_cot_few = []
+    subjective_recall_cot_few = []
+    subjective_f1_cot_few = []
+    for i in range(0, 5):
+        print('Subjectivity', i)
+        subjective_accuracy_cot_few.append(accuracy(subj_true[:, i], pred_cot_few_subj[:, i]))
+        subjective_precision_cot_few.append(precision(subj_true[:, i], pred_cot_few_subj[:, i]))
+        subjective_recall_cot_few.append(recall(subj_true[:, i], pred_cot_few_subj[:, i]))
+        subjective_f1_cot_few.append(f1_score(subj_true[:, i], pred_cot_few_subj[:, i]))
 
     # Define labels and values
     labels = ['Zero-Shot', 'Few-Shot', 'CoT-Zero', 'CoT-Few']
