@@ -39,11 +39,9 @@ if __name__ == "__main__":
         hard_labelled_data.append([temp[0], majority])
 
     # Split the data into train, validation and test sets
-    train_df_hard, temp_df_hard = train_test_split(hard_labelled_data, test_size=0.4, random_state=42)
-    val_df_hard, test_df_hard = train_test_split(temp_df_hard, test_size=0.5, random_state=42)
+    train_df_hard, test_df_hard = train_test_split(hard_labelled_data, test_size=0.3, random_state=42)
 
-    train_df_soft, temp_df_soft = train_test_split(soft_labelled_data, test_size=0.4, random_state=42)
-    val_df_soft, test_df_soft = train_test_split(temp_df_soft, test_size=0.5, random_state=42)
+    train_df_soft, test_df_soft = train_test_split(soft_labelled_data, test_size=0.3, random_state=42)
 
     # Write the "correct" labels for soft labels to a CSV file
     with open('soft_labels.csv', 'w', newline='') as csvfile:

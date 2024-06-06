@@ -218,9 +218,8 @@ if __name__ == "__main__":
     chain_of_thought_zero_results = []
     chain_of_thought_few_results = []
 
-    # Split into train/validate/test sets - 60% training, 20% validation, 20% testing
-    train_df, temp_df = train_test_split(hard_labels, test_size=0.4, random_state=42)
-    val_df, test_df = train_test_split(temp_df, test_size=0.5, random_state=42)
+    # Split into train/validate/test sets - 70% training, 30% testing
+    train_df, test_df = train_test_split(hard_labels, test_size=0.3, random_state=42)
 
     # Run the models on the test data
     for i in range(0, len(test_df)):

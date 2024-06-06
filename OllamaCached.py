@@ -217,3 +217,46 @@ def generate_explanation_hard(model_name, to_explain):
                            messages=initial_messages,
                            stream=False)
     return response["message"]["content"]
+
+
+def generate_explanation_subjectivity(model_name, to_explain, training_data):
+    """
+    Generate an explanation given a sentiment and a result for a subjectivity setting.
+
+    Args:
+        model_name: The name of the LLM model
+        to_explain: The input to explain [0] and the correct label [1]
+        training_data: The training data to provide to the LLM
+    Returns:
+        The explanation of how this result is achieved.
+    """
+    system_prompt = (
+        "You are an explanation generation model. Given an input text and its corresponding sentiment annotations from "
+        "five different annotators, your task is to craft a concise, three-sentence explanation clarifying why the "
+        "input text aligns with the predicted sentiment annotations. The sentiment labels are: 0: Strongly Negative, "
+        "1: Slightly Negative, 2: Neutral, 3: Slightly Positive, 4: Strongly Positive. The array is organized as "
+        "follows: [Annotator 1, Annotator 2, ..., Annotator 5]. Your explanation should be informative and focus on "
+        "the key words or phrases in the input text, as well as the history of predictions by each annotator, which "
+        "are provided below, that most strongly contribute to the predicted sentiment. Provide only the explanation."
+    )
+
+    initial_messages = [
+        {"role": "system", "content": system_prompt},
+    ]
+
+    for t in range(0, len(training_data)):
+        temp_row = training_data.iloc[t].values  # 0 = input, 5 next values are target soft labels
+        corr_result = "[" + ", ".join(str(x) for x in temp_row[1:6]) + "]"
+        full_row = temp_row[0] + "\n " + corr_result
+        initial_messages.append({"role": "system", "content": full_row})
+
+    to_explain_res = "[" + ", ".join(str(x) for x in to_explain[1:6]) + "]"
+    initial_messages.append({
+        "role": "user", "content": "Input: " + to_explain[0]+ " / Result to Explain: " + str(to_explain_res)
+    })
+
+    # Send the message and get the response from the assistant
+    response = ollama.chat(model=model_name,
+                           messages=initial_messages,
+                           stream=False)
+    return response["message"]["content"]

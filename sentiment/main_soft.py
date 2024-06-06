@@ -230,74 +230,63 @@ if __name__ == "__main__":
     chain_of_thought_zero_results = []
     chain_of_thought_few_results = []
 
-    # Split into train/validate/test sets - 60% training, 20% validation, 20% testing
-    train_df, temp_df = train_test_split(soft_labels, test_size=0.4, random_state=42)
-    val_df, test_df = train_test_split(temp_df, test_size=0.5, random_state=42)
+    # Split into train/validate/test sets - 70% training, 30% testing
+    train_df, test_df = train_test_split(soft_labels, test_size=0.3, random_state=42)
 
     # Run the models on the test data
     for i in range(0, len(test_df)):
         # Initialize the temporary results arrays
         input_and_target_results = test_df.iloc[i].values  # 0 = input, 5 next values are target soft labels
-        zero_shot_predicted = [0, 0, 0, 0, 0]
-        few_shot_predicted = [0, 0, 0, 0, 0]
-        chain_of_thought_zero_predicted = [0, 0, 0, 0, 0]
-        chain_of_thought_few_predicted = [0, 0, 0, 0, 0]
 
-        # Run each model 3 times and average the results
-        for j in range(0, 3):
-            # Run the zero-shot model
-            zero_result_extracted = ""
-            while zero_result_extracted == "":
-                try:
-                    zero_result = zero_shot(model, input_and_target_results[0])
-                    zero_result_extracted = extract_python_array(zero_result)
-                except Exception as e:
-                    print(e)
-                    print("Oopsi, trying zero again!")
-            zero_shot_predicted = list(map(operator.add, zero_shot_predicted, zero_result_extracted))
+        # Run the zero-shot model
+        zero_result_extracted = ""
+        while zero_result_extracted == "":
+            try:
+                zero_result = zero_shot(model, input_and_target_results[0])
+                zero_result_extracted = extract_python_array(zero_result)
+            except Exception as e:
+                print(e)
+                print("Oopsi, trying zero again!")
+        zero_shot_predicted = zero_result_extracted
 
-            # Run the few-shot model
-            few_result_extracted = ""
-            while few_result_extracted == "":
-                try:
-                    few_result = few_shot(model, train_df, input_and_target_results[0])
-                    few_result_extracted = extract_python_array(few_result)
-                except Exception as e:
-                    print(e)
-                    print("Oopsi, trying few again!")
-            few_shot_predicted = list(map(operator.add, few_shot_predicted, few_result_extracted))
+        # Run the few-shot model
+        few_result_extracted = ""
+        while few_result_extracted == "":
+            try:
+                few_result = few_shot(model, train_df, input_and_target_results[0])
+                few_result_extracted = extract_python_array(few_result)
+            except Exception as e:
+                print(e)
+                print("Oopsi, trying few again!")
+        few_shot_predicted = few_result_extracted
 
-            # Run the CoT zero-shot model
-            cot_zero_result_extracted = ""
-            while cot_zero_result_extracted == "":
-                try:
-                    cot_zero_result = chain_of_thought_zero(model, input_and_target_results[0])
-                    cot_zero_result_extracted = extract_python_array(cot_zero_result)
-                except Exception as e:
-                    print(e)
-                    print("Oopsi, trying cot_zero again!")
-            chain_of_thought_zero_predicted = list(
-                map(operator.add, chain_of_thought_zero_predicted, cot_zero_result_extracted)
-            )
+        # Run the CoT zero-shot model
+        cot_zero_result_extracted = ""
+        while cot_zero_result_extracted == "":
+            try:
+                cot_zero_result = chain_of_thought_zero(model, input_and_target_results[0])
+                cot_zero_result_extracted = extract_python_array(cot_zero_result)
+            except Exception as e:
+                print(e)
+                print("Oopsi, trying cot_zero again!")
+        chain_of_thought_zero_predicted = cot_zero_result_extracted
 
-            # Run the CoT few-shot model
-            cot_few_result_extracted = ""
-            while cot_few_result_extracted == "":
-                try:
-                    cot_few_result = chain_of_thought_few(model, train_df, input_and_target_results[0])
-                    cot_few_result_extracted = extract_python_array(cot_few_result)
-                except Exception as e:
-                    print(e)
-                    print("Oopsi, trying cot_few again!")
-            chain_of_thought_few_predicted = list(
-                map(operator.add, chain_of_thought_few_predicted, cot_few_result_extracted)
-            )
+        # Run the CoT few-shot model
+        cot_few_result_extracted = ""
+        while cot_few_result_extracted == "":
+            try:
+                cot_few_result = chain_of_thought_few(model, train_df, input_and_target_results[0])
+                cot_few_result_extracted = extract_python_array(cot_few_result)
+            except Exception as e:
+                print(e)
+                print("Oopsi, trying cot_few again!")
+        chain_of_thought_few_predicted = cot_few_result_extracted
 
-        # Append the results to the results arrays and normalize the results (i.e. divide by 3 / mean)
-        zero_shot_results.append([float(x) / 3.0 for x in zero_shot_predicted])
-        few_shot_results.append([float(x) / 3.0 for x in few_shot_predicted])
-        chain_of_thought_zero_results.append([float(x) / 3.0 for x in chain_of_thought_zero_predicted])
-        chain_of_thought_few_results.append([float(x) / 3.0 for x in chain_of_thought_few_predicted])
+        # Append the results to the results arrays
+        zero_shot_results.append(zero_shot_predicted)
+        few_shot_results.append(few_shot_predicted)
+        chain_of_thought_zero_results.append(chain_of_thought_zero_predicted)
+        chain_of_thought_few_results.append(chain_of_thought_few_predicted)
 
     # Write the results to csv files
     write_to_file("zero_shot_res_soft", zero_shot_results)
