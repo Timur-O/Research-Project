@@ -15,12 +15,12 @@ if __name__ == "__main__":
     data_joosje = pd.read_csv("../data/joosje.csv")
     all_data = [data_timur, data_adina, data_bente, data_ana, data_joosje]
 
-    # Initialize the hard and soft label arrays
+    # Initialize the hard, soft, and subjective label arrays
     hard_labelled_data = []
     soft_labelled_data = []
     subj_labelled_data = []
 
-    # Go through all the annotated rows and calculate the hard and soft labels
+    # Go through all the annotated rows and calculate the hard soft, and subjective labels
     for al in range(0, 50):  # range max should be the amount of annotated labels
         temp = [data_timur.iloc[al].values[5], 0, 0, 0, 0, 0]
         temp_all_annotators = []

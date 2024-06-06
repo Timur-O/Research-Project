@@ -16,19 +16,24 @@ def read_data_and_create_subjectivity_labels():
     data_bente = pd.read_csv("../data/bente.csv")
     data_ana = pd.read_csv("../data/ana.csv")
     data_joosje = pd.read_csv("../data/joosje.csv")
+    all_data = [data_timur, data_adina, data_bente, data_ana, data_joosje]
 
-    # Extract labels from reach annotated row
-    text_input = data_timur.iloc[:, 5]
-    col6_timur = data_timur.iloc[:, 6]
-    col6_adina = data_adina.iloc[:, 6]
-    col6_bente = data_bente.iloc[:, 6]
-    col6_ana = data_ana.iloc[:, 6]
-    col6_joosje = data_joosje.iloc[:, 6]
+    # Initialize the subjective label arrays
+    subj_labelled_data = []
 
-    # Combine to create one dataframe and return it
-    return pd.concat([
-        text_input, col6_timur, col6_adina, col6_bente, col6_ana, col6_joosje
-    ], axis=1)
+    # Go through all the annotated rows and calculate the hard soft, and subjective labels
+    for al in range(0, 50):  # range max should be the amount of annotated labels
+        temp = [data_timur.iloc[al].values[5], -1, -1, -1, -1, -1]
+        for i, data in enumerate(all_data):
+            temp[i + 1] = data.iloc[al].values[6]
+        subj_labelled_data.append(temp)
+
+    # Return the dataframe with the correct headers and filtered information
+    return pd.DataFrame(
+        subj_labelled_data,
+        None,
+        ["Datapoint", "Annotator 1", "Annotator 2", "Annotator 3", "Annotator 4", "Annotator 5"]
+    )
 
 
 def few_shot(model_name, training_data, input_row):
