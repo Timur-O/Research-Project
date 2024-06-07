@@ -132,7 +132,7 @@ if __name__ == "__main__":
     # Load the true and predicted values
     hard_true = np.array(load_values('../../Results/hard_labels.csv', 1))
     soft_true = np.array(load_values('../../Results/soft_labels.csv', 1))
-    subj_true = np.array(load_values('../../Results/subjective_labels.csv', 0))
+    subj_true = np.array(load_values('../../Results/subjective_labels.csv', 1))
 
     pred_zero_hard = np.array(load_values('../../Results/zero_shot_res_hard.csv', 0))
     pred_zero_soft = np.array(load_values('../../Results/zero_shot_res_soft.csv', 0))
@@ -151,67 +151,43 @@ if __name__ == "__main__":
     # Calculate the evaluation metrics for the Zero-Shot method
     print('Zero Shot Evaluation')
     accuracy_value_zero = accuracy(hard_true, pred_zero_hard)
-    precision_value_zero = precision(hard_true, pred_zero_hard)
-    recall_value_zero = recall(hard_true, pred_zero_hard)
     f1_value_zero = f1_score(hard_true, pred_zero_hard)
     fuzzy_accuracy_value_zero = fuzzy_accuracy(soft_true, pred_zero_soft)
-    fuzzy_precision_value_zero = fuzzy_precision(soft_true, pred_zero_soft)
-    fuzzy_recall_value_zero = fuzzy_recall(soft_true, pred_zero_soft)
     fuzzy_f1_value_zero = fuzzy_f1_score(soft_true, pred_zero_soft)
 
     # Calculate the evaluation metrics for the Few-Shot method
     print('Few Shot Evaluation')
     accuracy_value_few = accuracy(hard_true, pred_few_hard)
-    precision_value_few = precision(hard_true, pred_few_hard)
-    recall_value_few = recall(hard_true, pred_few_hard)
     f1_value_few = f1_score(hard_true, pred_few_hard)
     fuzzy_accuracy_value_few = fuzzy_accuracy(soft_true, pred_few_soft)
-    fuzzy_precision_value_few = fuzzy_precision(soft_true, pred_few_soft)
-    fuzzy_recall_value_few = fuzzy_recall(soft_true, pred_few_soft)
     fuzzy_f1_value_few = fuzzy_f1_score(soft_true, pred_few_soft)
 
     subjective_accuracy_few = []
-    subjective_precision_few = []
-    subjective_recall_few = []
     subjective_f1_few = []
     for i in range(0, 5):
         print('Subjectivity', i)
         subjective_accuracy_few.append(accuracy(subj_true[:, i], pred_few_subj[:, i]))
-        subjective_precision_few.append(precision(subj_true[:, i], pred_few_subj[:, i]))
-        subjective_recall_few.append(recall(subj_true[:, i], pred_few_subj[:, i]))
         subjective_f1_few.append(f1_score(subj_true[:, i], pred_few_subj[:, i]))
 
     # Calculate the evaluation metrics for the CoT Zero-Shot method
     print('Cot Zero Shot Evaluation')
     accuracy_value_cot_zero = accuracy(hard_true, pred_cot_zero_hard)
-    precision_value_cot_zero = precision(hard_true, pred_cot_zero_hard)
-    recall_value_cot_zero = recall(hard_true, pred_cot_zero_hard)
     f1_value_cot_zero = f1_score(hard_true, pred_cot_zero_hard)
     fuzzy_accuracy_value_cot_zero = fuzzy_accuracy(soft_true, pred_cot_zero_soft)
-    fuzzy_precision_value_cot_zero = fuzzy_precision(soft_true, pred_cot_zero_soft)
-    fuzzy_recall_value_cot_zero = fuzzy_recall(soft_true, pred_cot_zero_soft)
     fuzzy_f1_value_cot_zero = fuzzy_f1_score(soft_true, pred_cot_zero_soft)
 
     # Calculate the evaluation metrics for the CoT Few-Shot method
     print('Cot Few Shot Evaluation')
     accuracy_value_cot_few = accuracy(hard_true, pred_cot_few_hard)
-    precision_value_cot_few = precision(hard_true, pred_cot_few_hard)
-    recall_value_cot_few = recall(hard_true, pred_cot_few_hard)
     f1_value_cot_few = f1_score(hard_true, pred_cot_few_hard)
     fuzzy_accuracy_value_cot_few = fuzzy_accuracy(soft_true, pred_cot_few_soft)
-    fuzzy_precision_value_cot_few = fuzzy_precision(soft_true, pred_cot_few_soft)
-    fuzzy_recall_value_cot_few = fuzzy_recall(soft_true, pred_cot_few_soft)
     fuzzy_f1_value_cot_few = fuzzy_f1_score(soft_true, pred_cot_few_soft)
 
     subjective_accuracy_cot_few = []
-    subjective_precision_cot_few = []
-    subjective_recall_cot_few = []
     subjective_f1_cot_few = []
     for i in range(0, 5):
         print('Subjectivity', i)
         subjective_accuracy_cot_few.append(accuracy(subj_true[:, i], pred_cot_few_subj[:, i]))
-        subjective_precision_cot_few.append(precision(subj_true[:, i], pred_cot_few_subj[:, i]))
-        subjective_recall_cot_few.append(recall(subj_true[:, i], pred_cot_few_subj[:, i]))
         subjective_f1_cot_few.append(f1_score(subj_true[:, i], pred_cot_few_subj[:, i]))
 
     # Define labels and values
@@ -221,10 +197,6 @@ if __name__ == "__main__":
     # Define the values to enter into the charts
     values_accuracy_hard = [accuracy_value_zero, accuracy_value_few, accuracy_value_cot_zero, accuracy_value_cot_few]
     values_accuracy_soft = [fuzzy_accuracy_value_zero, fuzzy_accuracy_value_few, fuzzy_accuracy_value_cot_zero, fuzzy_accuracy_value_cot_few]
-    values_precision_hard = [precision_value_zero, precision_value_few, precision_value_cot_zero, precision_value_cot_few]
-    values_precision_soft = [fuzzy_precision_value_zero, fuzzy_precision_value_few, fuzzy_precision_value_cot_zero, fuzzy_precision_value_cot_few]
-    values_recall_hard = [recall_value_zero, recall_value_few, recall_value_cot_zero, recall_value_cot_few]
-    values_recall_soft = [fuzzy_recall_value_zero, fuzzy_recall_value_few, fuzzy_recall_value_cot_zero, fuzzy_recall_value_cot_few]
     values_f1_hard = [f1_value_zero, f1_value_few, f1_value_cot_zero, f1_value_cot_few]
     values_f1_soft = [fuzzy_f1_value_zero, fuzzy_f1_value_few, fuzzy_f1_value_cot_zero, fuzzy_f1_value_cot_few]
 
@@ -242,34 +214,6 @@ if __name__ == "__main__":
     ax.legend()
     plt.show()
 
-    # Create Precision Chart
-    print(values_precision_hard)
-    print(values_precision_soft)
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.bar(x - 0.2, values_precision_hard, 0.4, label='Hard Precision', color='b')
-    ax.bar(x + 0.2, values_precision_soft, 0.4, label='Soft Precision', color='r')
-    ax.set_title('Comparison of Precision')
-    ax.set_xlabel('Method')
-    ax.set_ylabel('Precision')
-    ax.set_xticklabels(labels)
-    ax.set_xticks(x)
-    ax.legend()
-    plt.show()
-
-    # Create Recall Chart
-    print(values_recall_hard)
-    print(values_recall_soft)
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.bar(x - 0.2, values_recall_hard, 0.4, label='Hard Recall', color='b')
-    ax.bar(x + 0.2, values_recall_soft, 0.4, label='Soft Recall', color='r')
-    ax.set_title('Comparison of Recall')
-    ax.set_xlabel('Method')
-    ax.set_ylabel('Recall')
-    ax.set_xticklabels(labels)
-    ax.set_xticks(x)
-    ax.legend()
-    plt.show()
-
     # Create F1 Score Chart
     print(values_f1_hard)
     print(values_f1_soft)
@@ -278,6 +222,37 @@ if __name__ == "__main__":
     ax.bar(x + 0.2, values_f1_soft, 0.4, label='Soft F1 Score', color='r')
     ax.set_title('Comparison of F1 Scores')
     ax.set_xlabel('Method')
+    ax.set_ylabel('F1 Score')
+    ax.set_xticklabels(labels)
+    ax.set_xticks(x)
+    ax.legend()
+    plt.show()
+
+    labels = ['Annotator 1', 'Annotator 2', 'Annotator 3', 'Annotator 4', 'Annotator 5']
+    x = np.arange(len(labels))
+
+    # Create Accuracy Chart
+    print(subjective_accuracy_few)
+    print(subjective_accuracy_cot_few)
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.bar(x - 0.2, subjective_accuracy_few, 0.4, label='Few-Shot', color='b')
+    ax.bar(x + 0.2, subjective_accuracy_cot_few, 0.4, label='CoT Few-Shot', color='r')
+    ax.set_title('Comparison of Accuracy')
+    ax.set_xlabel('Annotator')
+    ax.set_ylabel('Accuracy')
+    ax.set_xticklabels(labels)
+    ax.set_xticks(x)
+    ax.legend()
+    plt.show()
+
+    # Create F1 Score Chart
+    print(subjective_f1_few)
+    print(subjective_f1_cot_few)
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.bar(x - 0.2, subjective_f1_few, 0.4, label='Few-Shot', color='b')
+    ax.bar(x + 0.2, subjective_f1_cot_few, 0.4, label='CoT Few-Shot', color='r')
+    ax.set_title('Comparison of F1 Scores')
+    ax.set_xlabel('Annotator')
     ax.set_ylabel('F1 Score')
     ax.set_xticklabels(labels)
     ax.set_xticks(x)

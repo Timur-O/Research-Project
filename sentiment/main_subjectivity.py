@@ -191,13 +191,25 @@ if __name__ == "__main__":
         input_and_target_results = test_df.iloc[i].values  # 0 = input, 1-5 = annotator's labels
 
         # Run the Few-Shot model
-        few_shot_result = few_shot(model, train_df, input_and_target_results[0])
-        few_shot_result_extracted = extract_python_array(few_shot_result)
+        few_shot_result_extracted = ''
+        while few_shot_result_extracted == '':
+            try:
+                few_shot_result = few_shot(model, train_df, input_and_target_results[0])
+                few_shot_result_extracted = extract_python_array(few_shot_result)
+            except Exception as e:
+                print(e)
+                print("Oopsi, trying cot_few again!")
         few_shot_results.append(few_shot_result_extracted)
 
         # Run the CoT Few-Shot model
-        chain_of_thought_few_result = chain_of_thought_few(model, train_df, input_and_target_results[0])
-        chain_of_thought_few_result_extracted = extract_python_array(chain_of_thought_few_result)
+        chain_of_thought_few_result_extracted = ''
+        while chain_of_thought_few_result_extracted == '':
+            try:
+                chain_of_thought_few_result = chain_of_thought_few(model, train_df, input_and_target_results[0])
+                chain_of_thought_few_result_extracted = extract_python_array(chain_of_thought_few_result)
+            except Exception as e:
+                print(e)
+                print("Oopsi, trying cot_few again!")
         chain_of_thought_few_results.append(chain_of_thought_few_result_extracted)
 
     # Write the results to CSV files
