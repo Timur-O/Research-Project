@@ -14,43 +14,49 @@ def accuracy(true_values, predicted_values):
     return np.sum(true_values == predicted_values) / len(true_values)
 
 
-def precision(true_values, predicted_values):
+def precision_recall_f1(true_values, predicted_values, average='macro'):
     """
-    Calculate the precision of the model (hard scenario)
+    Calculate the precision, recall, and F1-Score of the model (multi-class scenario)
 
     :param true_values: The true values
     :param predicted_values: The predicted values
-    :return: The precision value
+    :param average: The type of averaging performed ('macro' or 'micro')
+    :return: A tuple of (precision, recall, f1_score)
     """
-    tp = np.sum((predicted_values == true_values) & (predicted_values > 0))
-    fp = np.sum((predicted_values != true_values) & (predicted_values > 0))
-    return tp / (tp + fp) if (tp + fp) > 0 else 0
+    unique_classes = np.unique(true_values)
+    precisions = []
+    recalls = []
+    f1_scores = []
 
+    for cls in unique_classes:
+        tp = np.sum((predicted_values == cls) & (true_values == cls))
+        fp = np.sum((predicted_values == cls) & (true_values != cls))
+        fn = np.sum((predicted_values != cls) & (true_values == cls))
 
-def recall(true_values, predicted_values):
-    """
-    Calculate the recall of the model (hard scenario)
+        precision = tp / (tp + fp) if (tp + fp) > 0 else 0
+        recall = tp / (tp + fn) if (tp + fn) > 0 else 0
+        f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
 
-    :param true_values: The true values
-    :param predicted_values: The predicted values
-    :return: The recall value
-    """
-    tp = np.sum((predicted_values == true_values) & (true_values > 0))
-    fn = np.sum((predicted_values != true_values) & (true_values > 0))
-    return tp / (tp + fn) if (tp + fn) > 0 else 0
+        precisions.append(precision)
+        recalls.append(recall)
+        f1_scores.append(f1)
 
+    if average == 'macro':
+        precision = np.mean(precisions)
+        recall = np.mean(recalls)
+        f1_score = np.mean(f1_scores)
+    elif average == 'micro':
+        tp_total = np.sum([(predicted_values == cls) & (true_values == cls) for cls in unique_classes])
+        fp_total = np.sum([(predicted_values == cls) & (true_values != cls) for cls in unique_classes])
+        fn_total = np.sum([(predicted_values != cls) & (true_values == cls) for cls in unique_classes])
 
-def f1_score(true_values, predicted_values):
-    """
-    Calculate the F1-Score of the model (hard scenario)
+        precision = tp_total / (tp_total + fp_total) if (tp_total + fp_total) > 0 else 0
+        recall = tp_total / (tp_total + fn_total) if (tp_total + fn_total) > 0 else 0
+        f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+    else:
+        raise ValueError("average must be one of ['macro', 'micro']")
 
-    :param true_values: The true values
-    :param predicted_values: The predicted values
-    :return: The F1-Score
-    """
-    prec = precision(true_values, predicted_values)
-    rec = recall(true_values, predicted_values)
-    return 2 * (prec * rec) / (prec + rec) if (prec + rec) > 0 else 0
+    return precision, recall, f1_score
 
 
 def cosine_similarity(a, b):
@@ -151,7 +157,7 @@ if __name__ == "__main__":
     # Calculate the evaluation metrics for the Zero-Shot method
     print('Zero Shot Evaluation')
     accuracy_value_zero = accuracy(hard_true, pred_zero_hard)
-    f1_value_zero = f1_score(hard_true, pred_zero_hard)
+    _, _, f1_value_zero = precision_recall_f1(hard_true, pred_zero_hard, "macro")
     print('Accuracy:', accuracy_value_zero, 'F1:', f1_value_zero)
     fuzzy_accuracy_value_zero = fuzzy_accuracy(soft_true, pred_zero_soft)
     fuzzy_f1_value_zero = fuzzy_f1_score(soft_true, pred_zero_soft)
@@ -160,7 +166,7 @@ if __name__ == "__main__":
     # Calculate the evaluation metrics for the Few-Shot method
     print('Few Shot Evaluation')
     accuracy_value_few = accuracy(hard_true, pred_few_hard)
-    f1_value_few = f1_score(hard_true, pred_few_hard)
+    _, _, f1_value_few = precision_recall_f1(hard_true, pred_few_hard, "macro")
     print('Accuracy:', accuracy_value_few, 'F1:', f1_value_few)
     fuzzy_accuracy_value_few = fuzzy_accuracy(soft_true, pred_few_soft)
     fuzzy_f1_value_few = fuzzy_f1_score(soft_true, pred_few_soft)
@@ -170,12 +176,12 @@ if __name__ == "__main__":
     subjective_f1_few = []
     for i in range(0, 5):
         subjective_accuracy_few.append(accuracy(subj_true[:, i], pred_few_subj[:, i]))
-        subjective_f1_few.append(f1_score(subj_true[:, i], pred_few_subj[:, i]))
+        subjective_f1_few.append(precision_recall_f1(subj_true[:, i], pred_few_subj[:, i], "macro")[2])
 
     # Calculate the evaluation metrics for the CoT Zero-Shot method
     print('Cot Zero Shot Evaluation')
     accuracy_value_cot_zero = accuracy(hard_true, pred_cot_zero_hard)
-    f1_value_cot_zero = f1_score(hard_true, pred_cot_zero_hard)
+    _, _, f1_value_cot_zero = precision_recall_f1(hard_true, pred_cot_zero_hard, "macro")
     print('Accuracy:', accuracy_value_cot_zero, 'F1:', f1_value_cot_zero)
     fuzzy_accuracy_value_cot_zero = fuzzy_accuracy(soft_true, pred_cot_zero_soft)
     fuzzy_f1_value_cot_zero = fuzzy_f1_score(soft_true, pred_cot_zero_soft)
@@ -184,7 +190,7 @@ if __name__ == "__main__":
     # Calculate the evaluation metrics for the CoT Few-Shot method
     print('Cot Few Shot Evaluation')
     accuracy_value_cot_few = accuracy(hard_true, pred_cot_few_hard)
-    f1_value_cot_few = f1_score(hard_true, pred_cot_few_hard)
+    _, _, f1_value_cot_few = precision_recall_f1(hard_true, pred_cot_few_hard, "macro")
     print('Accuracy:', accuracy_value_cot_few, 'F1:', f1_value_cot_few)
     fuzzy_accuracy_value_cot_few = fuzzy_accuracy(soft_true, pred_cot_few_soft)
     fuzzy_f1_value_cot_few = fuzzy_f1_score(soft_true, pred_cot_few_soft)
@@ -194,7 +200,7 @@ if __name__ == "__main__":
     subjective_f1_cot_few = []
     for i in range(0, 5):
         subjective_accuracy_cot_few.append(accuracy(subj_true[:, i], pred_cot_few_subj[:, i]))
-        subjective_f1_cot_few.append(f1_score(subj_true[:, i], pred_cot_few_subj[:, i]))
+        subjective_f1_cot_few.append(precision_recall_f1(subj_true[:, i], pred_cot_few_subj[:, i], "macro")[2])
 
     # Define labels and values
     labels = ['Zero-Shot', 'Few-Shot', 'CoT-Zero', 'CoT-Few']
@@ -216,6 +222,7 @@ if __name__ == "__main__":
     ax.set_xticklabels(labels)
     ax.set_xticks(x)
     ax.legend()
+    plt.savefig('Accuracy.pdf')
     plt.show()
 
     # Create F1 Score Chart
@@ -228,6 +235,7 @@ if __name__ == "__main__":
     ax.set_xticklabels(labels)
     ax.set_xticks(x)
     ax.legend()
+    plt.savefig('F1-Score.pdf')
     plt.show()
 
     labels = ['Annotator 1', 'Annotator 2', 'Annotator 3', 'Annotator 4', 'Annotator 5']
@@ -245,6 +253,7 @@ if __name__ == "__main__":
     ax.set_xticklabels(labels)
     ax.set_xticks(x)
     ax.legend()
+    plt.savefig('Subj_Accuracy.pdf')
     plt.show()
 
     # Create F1 Score Chart
@@ -259,4 +268,5 @@ if __name__ == "__main__":
     ax.set_xticklabels(labels)
     ax.set_xticks(x)
     ax.legend()
+    plt.savefig('Subj_F1-Score.pdf')
     plt.show()

@@ -159,3 +159,6 @@ cython_debug/
 data/
 models/
 bitsandbytes/
+
+# Unignore Templates
+!data/template.csv

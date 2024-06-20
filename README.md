@@ -1,5 +1,5 @@
 # Research Project
-Leveraging Large Language Models for Classifying Deliberative Elements in Public Discourse.
+The repository for the bachelor thesis project: leveraging Large Language Models for Classifying Deliberative Elements in Public Discourse.
 
 ## General Setup
 1. Clone Repository
