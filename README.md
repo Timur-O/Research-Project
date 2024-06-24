@@ -1,5 +1,7 @@
 # Research Project
-The repository for the bachelor thesis project: leveraging Large Language Models for Classifying Deliberative Elements in Public Discourse.
+This is the repository for the bachelor thesis project: Leveraging Large Language Models for Classifying Deliberative Elements in Public Discourse.
+
+This is part of the [Research Project](https://github.com/TU-Delft-CSE/Research-Project) (2023/24 Q4) at [TU Delft](https://github.com/TU-Delft-CSE)
 
 ## General Setup
 1. Clone Repository
