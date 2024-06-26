@@ -1,2 +1,16 @@
 ollama==0.1.8
 tqdm==4.66.2
+pandas==2.2.2
+scikit-learn==1.5.0rc1
+transformers==4.41.1
+datasets==2.19.1
+bitsandbytes==0.43.1
+accelerate==0.30.1
+peft==0.11.1
+setuptools==70.0.0
+torch
+
+# Evaluation
+matplotlib
+scipy
+statsmodels
